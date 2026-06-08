@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Gokul Cycle &amp; Tyres</string>
+    <string name="title_activity_main">Gokul Cycle &amp; Tyres</string>
+    <string name="package_name">com.gokulcycle.inventory</string>
+    <string name="custom_url_scheme">com.gokulcycle.inventory</string>
+</resources>

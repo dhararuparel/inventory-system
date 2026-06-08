@@ -5,19 +5,19 @@
   "main": "main.js",
   "scripts": {
     "electron:start": "electron .",
-    "electron:build": "electron-builder build --win --x64",
+    "electron:build": "electron-packager . \"Gokul Cycle & Tyres\" --platform=win32 --arch=x64 --out=dist-exe --overwrite",
     "capacitor:init": "cap init \"Gokul Cycle & Tyres\" \"com.gokulcycle.inventory\" --web-dir=www",
     "capacitor:add-android": "cap add android",
     "capacitor:sync": "cap sync",
     "capacitor:open-android": "cap open android"
   },
-  "dependencies": {},
   "devDependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
     "electron": "^30.0.9",
     "electron-builder": "^24.13.3",
-    "@capacitor/core": "^6.0.0",
-    "@capacitor/cli": "^6.0.0",
-    "@capacitor/android": "^6.0.0"
+    "electron-packager": "^17.1.2"
   },
   "build": {
     "appId": "com.gokulcycle.inventory",
