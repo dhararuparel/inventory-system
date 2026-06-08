@@ -61,7 +61,10 @@ def create_app(config_class=Config):
         return User.query.get(int(user_id))
 
     # Create upload folder directory if not exists
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    try:
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    except Exception as e:
+        app.logger.warning(f"Could not create upload directory (might be read-only): {e}")
 
     # Register blueprints
     from app.auth import auth_bp
