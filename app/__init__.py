@@ -10,6 +10,7 @@ from app.models.product import Product
 from app.models.location import Location
 from app.models.inventory import Inventory
 from app.models.transaction import Transaction
+from app.models.category import Category
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -37,12 +38,9 @@ def create_app(config_class=Config):
                     staff.set_password("staff123")
                     db.session.add(staff)
                 
-                from app.models.location import Location
                 godown = Location.query.filter_by(name="Main Godown").first()
                 if not godown:
                     db.session.add(Location(name="Main Godown"))
-                
-                from app.models.category import Category
                 default_categories = ['Cycle', 'Tyre', 'Tube', 'Rim', 'Spare Part', 'Accessory']
                 for cat_name in default_categories:
                     if not Category.query.filter_by(name=cat_name).first():
@@ -87,7 +85,6 @@ def create_app(config_class=Config):
         LocationAdminView, InventoryAdminView, TransactionAdminView,
         CategoryAdminView
     )
-    from app.models.category import Category
     
     admin = Admin(
         app, 
