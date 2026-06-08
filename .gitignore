@@ -57,3 +57,4 @@ Desktop.ini
 # Node.js and compiled desktop binaries
 node_modules/
 dist-exe/
+dist-installer/
