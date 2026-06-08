@@ -6,6 +6,7 @@
   "scripts": {
     "electron:start": "electron .",
     "electron:build": "electron-packager . \"Gokul Cycle & Tyres\" --platform=win32 --arch=x64 --out=dist-exe --overwrite",
+    "electron:installer": "node create-installer.js",
     "capacitor:init": "cap init \"Gokul Cycle & Tyres\" \"com.gokulcycle.inventory\" --web-dir=www",
     "capacitor:add-android": "cap add android",
     "capacitor:sync": "cap sync",
@@ -17,7 +18,8 @@
     "@capacitor/core": "^6.0.0",
     "electron": "^30.0.9",
     "electron-builder": "^24.13.3",
-    "electron-packager": "^17.1.2"
+    "electron-packager": "^17.1.2",
+    "electron-winstaller": "^5.4.0"
   },
   "build": {
     "appId": "com.gokulcycle.inventory",

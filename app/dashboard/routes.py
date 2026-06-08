@@ -137,3 +137,8 @@ def index():
         monthly_labels=monthly_labels,
         monthly_counts=monthly_counts
     )
+
+@dashboard_bp.route('/downloads')
+def downloads():
+    return render_template('dashboard/downloads.html')
+

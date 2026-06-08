@@ -1,6 +1,18 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
+// Disable hardware acceleration to prevent GPU process crashes
+app.disableHardwareAcceleration();
+
+// Append switches to completely bypass GPU rendering and process sandboxing for compatibility
+app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('disable-gpu-rasterization');
+app.commandLine.appendSwitch('disable-gpu-sandbox');
+app.commandLine.appendSwitch('disable-software-rasterizer');
+app.commandLine.appendSwitch('disable-accelerated-2d-canvas');
+app.commandLine.appendSwitch('disable-gpu-compositing');
+app.commandLine.appendSwitch('no-sandbox');
+
 let mainWindow;
 
 function createWindow() {

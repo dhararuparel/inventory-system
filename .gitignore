@@ -11,7 +11,7 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-downloads/
+/downloads/
 eggs/
 .eggs/
 lib/
@@ -57,3 +57,4 @@ Desktop.ini
 # Node.js and compiled desktop binaries
 node_modules/
 dist-exe/
+dist-installer/
