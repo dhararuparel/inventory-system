@@ -1,0 +1,42 @@
+{
+  "name": "gokul-cycle-tyres",
+  "version": "1.0.0",
+  "description": "Gokul Cycle & Tyres Inventory Management System App Wrapper",
+  "main": "main.js",
+  "scripts": {
+    "electron:start": "electron .",
+    "electron:build": "electron-builder build --win --x64",
+    "capacitor:init": "cap init \"Gokul Cycle & Tyres\" \"com.gokulcycle.inventory\" --web-dir=www",
+    "capacitor:add-android": "cap add android",
+    "capacitor:sync": "cap sync",
+    "capacitor:open-android": "cap open android"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^30.0.9",
+    "electron-builder": "^24.13.3",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/android": "^6.0.0"
+  },
+  "build": {
+    "appId": "com.gokulcycle.inventory",
+    "productName": "Gokul Cycle & Tyres",
+    "directories": {
+      "output": "dist-exe"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "app/static/logo.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Gokul Cycle & Tyres"
+    }
+  }
+}

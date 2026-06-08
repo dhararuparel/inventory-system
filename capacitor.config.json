@@ -1,0 +1,12 @@
+{
+  "appId": "com.gokulcycle.inventory",
+  "appName": "Gokul Cycle & Tyres",
+  "webDir": "www",
+  "server": {
+    "url": "https://gokul-cycle-tyres.vercel.app",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}
