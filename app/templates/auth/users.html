@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Gokul Cycle & Tyre{% endblock %}
+{% block header_title %}User Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">System Users</h4>
+        <p class="text-secondary small mb-0">Manage credentials and roles for staff and administrators.</p>
+    </div>
+    <a href="{{ url_for('auth.add_user') }}" class="btn btn-indigo d-flex align-items-center gap-2">
+        <i class="bi bi-person-plus-fill"></i>
+        <span>Add New User</span>
+    </a>
+</div>
+
+<div class="table-custom-wrapper">
+    <table class="table table-custom table-hover align-middle">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Created At</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td class="fw-semibold text-secondary">#{{ user.id }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                <i class="bi bi-person text-secondary"></i>
+                            </div>
+                            <span class="fw-semibold">{{ user.username }}</span>
+                            {% if user.id == current_user.id %}
+                                <span class="badge bg-primary-subtle text-primary rounded-pill" style="font-size: 0.7rem;">You</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if user.role == 'ADMIN' %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
+                                <i class="bi bi-shield-fill-check me-1"></i>Administrator
+                            </span>
+                        {% else %}
+                            <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
+                                <i class="bi bi-person-fill me-1"></i>Staff Member
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="text-secondary small">{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ url_for('auth.edit_user', id=user.id) }}" class="btn btn-sm btn-outline-secondary" title="Edit user">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            
+                            {% if user.id != current_user.id %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.id }}">
+                                    <i class="bi bi-trash3"></i> Delete
+                                </button>
+                                
+                                <!-- Confirmation Modal -->
+                                <div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ user.id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow-lg">
+                                            <div class="modal-header border-0 bg-danger text-white">
+                                                <h5 class="modal-title fw-bold" id="deleteModalLabel{{ user.id }}"><i class="bi bi-exclamation-triangle me-2"></i>Delete User Account</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body text-start p-4">
+                                                <p>Are you sure you want to delete the user account for <strong>{{ user.username }}</strong>?</p>
+                                                <p class="text-danger small mb-0"><i class="bi bi-info-circle me-1"></i>This action is permanent and cannot be undone.</p>
+                                            </div>
+                                            <div class="modal-footer border-0 bg-light">
+                                                <button type="button" class="btn btn-secondary btn-sm rounded-3" data-bs-dismiss="modal">Cancel</button>
+                                                <form action="{{ url_for('auth.delete_user', id=user.id) }}" method="POST" class="d-inline">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <button type="submit" class="btn btn-danger btn-sm rounded-3 px-3">Confirm Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-secondary">
+                        <i class="bi bi-people fs-2 d-block mb-2 text-muted"></i>
+                        No users configured in the system.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

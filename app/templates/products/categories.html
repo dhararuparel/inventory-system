@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Categories - Gokul Cycle & Tyre{% endblock %}
+{% block header_title %}Product Categories{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('products.list_products') }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Products</span>
+    </a>
+</div>
+
+<div class="row">
+    <!-- Left Column: Category Listing -->
+    <div class="col-lg-7 mb-4">
+        <div class="card-custom">
+            <div class="card-header-custom bg-white">
+                <h5 class="fw-bold"><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>Active Categories</h5>
+            </div>
+            <div class="card-body-custom p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th class="ps-4" style="width: 15%;">ID</th>
+                                <th>Category Name</th>
+                                <th class="pe-4 text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cat in categories %}
+                                <tr>
+                                    <td class="ps-4 font-monospace text-secondary">#{{ cat.id }}</td>
+                                    <td><span class="fw-bold text-dark">{{ cat.name }}</span></td>
+                                    <td class="pe-4 text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" onclick="confirmDeleteCategory({{ cat.id }}, {{ cat.name|tojson }})" title="Delete Category">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-5 text-secondary">
+                                        <i class="bi bi-tag-fill fs-2 d-block mb-2 text-muted"></i>
+                                        No categories found in the database.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Add Category Form -->
+    <div class="col-lg-5 mb-4">
+        <div class="card-custom">
+            <div class="card-header-custom bg-white">
+                <h5 class="fw-bold"><i class="bi bi-plus-circle-fill text-indigo me-2"></i>Add New Category</h5>
+            </div>
+            <div class="card-body-custom">
+                <form method="POST" action="{{ url_for('products.list_categories') }}" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        <label for="name" class="form-label-custom">Category Name</label>
+                        {{ form.name(class="form-control form-control-custom" + (" is-invalid" if form.name.errors else ""), placeholder="e.g. Helmets, Lights, etc.") }}
+                        {% for error in form.name.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text small text-secondary mt-1">Provide a unique name for the product category.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-indigo w-100 py-2">
+                        <i class="bi bi-check-circle-fill me-1"></i>Create Category
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Category Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 bg-danger text-white">
+                <h5 class="modal-title fw-bold" id="deleteCategoryModalLabel"><i class="bi bi-exclamation-triangle me-2"></i>Delete Category</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start p-4">
+                <p>Are you sure you want to delete the category: <strong id="deleteCategoryNameSpan"></strong>?</p>
+                <p class="text-secondary small mb-0"><i class="bi bi-info-circle me-1"></i>Categories can only be deleted if they are not currently assigned to any products. Once deleted, they will be removed from all dropdowns and filters.</p>
+            </div>
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-secondary btn-sm rounded-3" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteCategoryForm" action="" method="POST" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm rounded-3 px-3">Confirm Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function confirmDeleteCategory(categoryId, categoryName) {
+        document.getElementById('deleteCategoryNameSpan').innerText = categoryName;
+        document.getElementById('deleteCategoryForm').action = "{{ url_for('products.list_categories') }}/delete/" + categoryId;
+    }
+</script>
+{% endblock %}

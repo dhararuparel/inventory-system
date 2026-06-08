@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Gokul Cycle & Tyre{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('products.list_products') }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Catalog</span>
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card-custom">
+            <div class="card-header-custom bg-white">
+                <h5 class="fw-bold">
+                    <i class="bi bi-box-seam text-primary me-2"></i>
+                    {% if product %}Edit: {{ product.name }}{% else %}Register New Product{% endif %}
+                </h5>
+            </div>
+            <div class="card-body-custom">
+                <form method="POST" action="" enctype="multipart/form-data" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row g-3 mb-3">
+                        <!-- Product Code -->
+                        <div class="col-md-6">
+                            <label for="product_code" class="form-label-custom">Product Code / SKU</label>
+                            {{ form.product_code(class="form-control form-control-custom text-uppercase" + (" is-invalid" if form.product_code.errors else ""), placeholder="e.g. MRF-TYR-26") }}
+                            {% for error in form.product_code.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text small">Must be a unique identifier.</div>
+                        </div>
+
+                        <!-- Product Name -->
+                        <div class="col-md-6">
+                            <label for="name" class="form-label-custom">Product Name</label>
+                            {{ form.name(class="form-control form-control-custom" + (" is-invalid" if form.name.errors else ""), placeholder="e.g. MRF Nylon Tyre 26 inches") }}
+                            {% for error in form.name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <!-- Brand -->
+                        <div class="col-md-4">
+                            <label for="brand" class="form-label-custom">Brand</label>
+                            {{ form.brand(class="form-control form-control-custom" + (" is-invalid" if form.brand.errors else ""), placeholder="e.g. MRF, Hero, Shimano") }}
+                            {% for error in form.brand.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-4">
+                            <label for="category" class="form-label-custom">Category</label>
+                            {{ form.category(class="form-select form-control-custom" + (" is-invalid" if form.category.errors else "")) }}
+                            {% for error in form.category.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Size -->
+                        <div class="col-md-4">
+                            <label for="size" class="form-label-custom">Size / Dimensions</label>
+                            {{ form.size(class="form-control form-control-custom" + (" is-invalid" if form.size.errors else ""), placeholder="e.g. 26\", 700c, Standard") }}
+                            {% for error in form.size.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <!-- Purchase Price -->
+                        <div class="col-md-4">
+                            <label for="purchase_price" class="form-label-custom">Purchase Price (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">₹</span>
+                                {{ form.purchase_price(class="form-control form-control-custom border-start-0" + (" is-invalid" if form.purchase_price.errors else ""), placeholder="0.00", step="0.01") }}
+                                {% for error in form.purchase_price.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Selling Price -->
+                        <div class="col-md-4">
+                            <label for="selling_price" class="form-label-custom">Selling Price (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">₹</span>
+                                {{ form.selling_price(class="form-control form-control-custom border-start-0" + (" is-invalid" if form.selling_price.errors else ""), placeholder="0.00", step="0.01") }}
+                                {% for error in form.selling_price.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Minimum Stock Level Alert -->
+                        <div class="col-md-4">
+                            <label for="minimum_stock" class="form-label-custom">Minimum Alert Level</label>
+                            {{ form.minimum_stock(class="form-control form-control-custom" + (" is-invalid" if form.minimum_stock.errors else ""), type="number") }}
+                            {% for error in form.minimum_stock.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text small">Threshold to trigger low-stock warning indicators.</div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label-custom">Product Description</label>
+                        {{ form.description(class="form-control form-control-custom", rows="3", placeholder="Add detailed product information...") }}
+                    </div>
+
+                    <!-- Image Upload & Status -->
+                    <div class="row g-3 mb-4 align-items-center">
+                        <div class="col-md-6">
+                            <label for="image" class="form-label-custom">Product Image</label>
+                            {{ form.image(class="form-control form-control-custom" + (" is-invalid" if form.image.errors else "")) }}
+                            {% for error in form.image.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            
+                            {% if product and product.image %}
+                                <div class="mt-2 d-flex align-items-center gap-2">
+                                    <span class="small text-secondary">Current Image:</span>
+                                    <span class="badge bg-secondary font-monospace">{{ product.image }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 pt-3">
+                            <div class="form-check form-switch p-0 ps-4">
+                                {{ form.is_active(class="form-check-input ms-0 me-2", type="checkbox", id="isActiveSwitch") }}
+                                <label class="form-check-label fw-semibold" for="isActiveSwitch">Active & Available in Catalog</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit & Cancel Buttons -->
+                    <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                        <a href="{{ url_for('products.list_products') }}" class="btn btn-light rounded-3 px-3">Cancel</a>
+                        <button type="submit" class="btn btn-indigo rounded-3 px-4">
+                            <i class="bi bi-save2-fill me-1"></i>Save Product Catalog Record
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <!-- Header banner -->
+    <div class="p-4 mb-4 bg-dark text-white rounded-3 shadow-sm">
+        <div class="container-fluid py-2">
+            <h1 class="display-6 fw-bold"><i class="bi bi-shield-lock-fill text-warning me-3"></i>System Admin Console</h1>
+            <p class="col-md-8 fs-6 text-secondary">Welcome to the core database management console. As an Administrator, you can inspect raw database states, perform edits, override stock levels, and review user logs.</p>
+            <a href="/dashboard" class="btn btn-primary btn-md mt-2 px-4"><i class="bi bi-arrow-left me-2"></i>Exit to Main Application Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards Grid -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mb-4">
+        <!-- Users count -->
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small font-weight-bold mb-1">Users</h6>
+                        <h3 class="fw-bold m-0">{{ stats.users_count }}</h3>
+                    </div>
+                    <div class="rounded-circle bg-light p-3 text-secondary">
+                        <i class="bi bi-people" style="font-size: 1.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products count -->
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small font-weight-bold mb-1">Products</h6>
+                        <h3 class="fw-bold m-0">{{ stats.products_count }}</h3>
+                    </div>
+                    <div class="rounded-circle bg-light p-3 text-secondary">
+                        <i class="bi bi-tag" style="font-size: 1.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Locations count -->
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small font-weight-bold mb-1">Locations</h6>
+                        <h3 class="fw-bold m-0">{{ stats.locations_count }}</h3>
+                    </div>
+                    <div class="rounded-circle bg-light p-3 text-secondary">
+                        <i class="bi bi-geo-alt" style="font-size: 1.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory records -->
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small font-weight-bold mb-1">Stock Records</h6>
+                        <h3 class="fw-bold m-0">{{ stats.inventory_records }}</h3>
+                    </div>
+                    <div class="rounded-circle bg-light p-3 text-secondary">
+                        <i class="bi bi-boxes" style="font-size: 1.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions count -->
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small font-weight-bold mb-1">Audit Entries</h6>
+                        <h3 class="fw-bold m-0">{{ stats.transactions_count }}</h3>
+                    </div>
+                    <div class="rounded-circle bg-light p-3 text-secondary">
+                        <i class="bi bi-journal-text" style="font-size: 1.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Administrative guides -->
+    <div class="card border-0 shadow-sm bg-white p-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Database Constraints & Security Notes</h5>
+        <ul class="text-muted mb-0 small" style="line-height: 1.8;">
+            <li><strong>Audit Logging:</strong> Every action processed inside the main app dashboard generates permanent record rows. Editing the audit log tables directly from this admin panel is restricted to safeguard data validation compliance.</li>
+            <li><strong>Negative stock prevention:</strong> The database enforces an integrity check constraint: `CK_INVENTORY_QUANTITY_NONNEGATIVE`. Entering a negative count for a location's inventory level will trigger database-level errors and rollback the transaction.</li>
+            <li><strong>Adding locations:</strong> You can add locations (e.g. Godown #3, Godown #2) in the "Locations" table. Once added, stock operations (In, Out) can immediately leverage them.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Inventory Management System{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <a href="{{ url_for('dashboard.index') }}" class="d-flex align-items-center text-decoration-none text-white gap-2">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Gokul Logo" class="sidebar-logo">
+                    <h3 class="mb-0 fs-6 fw-bold">Gokul Cycle & Tyre</h3>
+                </a>
+            </div>
+
+            <ul class="list-unstyled components">
+                <p>Core Modules</p>
+                <li id="menu-dashboard">
+                    <a href="{{ url_for('dashboard.index') }}">
+                        <i class="bi bi-speedometer2"></i>Dashboard
+                    </a>
+                </li>
+                <li id="menu-products">
+                    <a href="{{ url_for('products.list_products') }}">
+                        <i class="bi bi-tag-fill"></i>Products
+                    </a>
+                </li>
+                <li id="menu-inventory">
+                    <a href="{{ url_for('inventory.list_inventory') }}">
+                        <i class="bi bi-boxes"></i>Inventory Stock
+                        {% if global_low_stock_count > 0 %}
+                            <span class="badge bg-warning text-dark rounded-pill ms-auto" title="Low stock items alert">
+                                {{ global_low_stock_count }}
+                            </span>
+                        {% endif %}
+                    </a>
+                </li>
+                
+                <p>Stock Movements</p>
+                <li id="menu-stock-in">
+                    <a href="{{ url_for('transactions.stock_in') }}">
+                        <i class="bi bi-box-arrow-in-down text-success"></i>Stock In (Purchase)
+                    </a>
+                </li>
+                <li id="menu-stock-out">
+                    <a href="{{ url_for('transactions.stock_out') }}">
+                        <i class="bi bi-box-arrow-up text-danger"></i>Stock Out (Sale)
+                    </a>
+                </li>
+                <li id="menu-transactions">
+                    <a href="{{ url_for('transactions.history') }}">
+                        <i class="bi bi-journal-text"></i>Transaction Logs
+                    </a>
+                </li>
+                
+                <p>Reports & Management</p>
+                <li id="menu-reports">
+                    <a href="{{ url_for('reports.index') }}">
+                        <i class="bi bi-file-earmark-bar-graph"></i>Reports Center
+                    </a>
+                </li>
+                
+                {% if current_user.is_authenticated and current_user.is_admin() %}
+                    <li id="menu-categories">
+                        <a href="{{ url_for('products.list_categories') }}">
+                            <i class="bi bi-grid-3x3-gap-fill text-primary"></i>Manage Categories
+                        </a>
+                    </li>
+                    <li id="menu-users">
+                        <a href="{{ url_for('auth.list_users') }}">
+                            <i class="bi bi-people-fill"></i>Users & Staff
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/" target="_blank">
+                            <i class="bi bi-shield-lock-fill text-warning"></i>System Admin Panel
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <div class="sidebar-footer">
+                <span class="small d-block text-muted">Signed in as:</span>
+                <span class="fw-semibold text-white d-block text-truncate mb-2">{{ current_user.username }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-danger w-100 py-1">
+                    <i class="bi bi-box-arrow-right me-1"></i>Log Out
+                </a>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Custom Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-custom">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-outline-secondary me-3">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <span class="navbar-brand mb-0 h1 fs-5 fw-bold d-none d-sm-inline-block">
+                        {% block header_title %}Inventory Dashboard{% endblock %}
+                    </span>
+                    
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle fs-5"></i>
+                                <span>{{ current_user.username }}</span>
+                                <span class="badge bg-secondary text-uppercase" style="font-size: 0.65rem;">{{ current_user.role }}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="userMenuButton">
+                                <li><a class="dropdown-item py-2" href="{{ url_for('inventory.list_inventory') }}"><i class="bi bi-grid me-2 text-secondary"></i>View Inventory</a></li>
+                                {% if current_user.is_admin() %}
+                                    <li><a class="dropdown-item py-2" href="/admin/" target="_blank"><i class="bi bi-shield-lock me-2 text-secondary"></i>Admin Panel</a></li>
+                                    <li><a class="dropdown-item py-2" href="{{ url_for('auth.list_users') }}"><i class="bi bi-people me-2 text-secondary"></i>Manage Staff</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content Container -->
+            <div class="main-content">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show alert-custom shadow-sm" role="alert">
+                                {% if category == 'success' %}
+                                    <i class="bi bi-check-circle-fill me-2"></i>
+                                {% elif category == 'danger' %}
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle-fill me-2"></i>
+                                {% endif %}
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Sidebar Toggle Script & Navigation Highlighter -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar Toggle
+            const sidebarCollapse = document.getElementById('sidebarCollapse');
+            const sidebar = document.getElementById('sidebar');
+            
+            // Create backdrop element
+            const backdrop = document.createElement('div');
+            backdrop.className = 'sidebar-backdrop';
+            document.body.appendChild(backdrop);
+
+            if (sidebarCollapse && sidebar) {
+                sidebarCollapse.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    backdrop.classList.toggle('show');
+                });
+                
+                // Clicking backdrop closes the sidebar
+                backdrop.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    backdrop.classList.remove('show');
+                });
+            }
+
+            // Highlighting active sidebar menu item
+            const currentPath = window.location.pathname;
+            
+            // Map paths to menu item IDs
+            let activeId = '';
+            if (currentPath === '/' || currentPath.startsWith('/dashboard')) {
+                activeId = 'menu-dashboard';
+            } else if (currentPath.startsWith('/products/categories')) {
+                activeId = 'menu-categories';
+            } else if (currentPath.startsWith('/products')) {
+                activeId = 'menu-products';
+            } else if (currentPath.startsWith('/inventory')) {
+                activeId = 'menu-inventory';
+            } else if (currentPath.startsWith('/stock-in')) {
+                activeId = 'menu-stock-in';
+            } else if (currentPath.startsWith('/stock-out')) {
+                activeId = 'menu-stock-out';
+            } else if (currentPath.startsWith('/transfers')) {
+                activeId = 'menu-transfers';
+            } else if (currentPath.startsWith('/transactions')) {
+                activeId = 'menu-transactions';
+            } else if (currentPath.startsWith('/reports')) {
+                activeId = 'menu-reports';
+            } else if (currentPath.startsWith('/users')) {
+                activeId = 'menu-users';
+            }
+
+            if (activeId) {
+                const menuItem = document.getElementById(activeId);
+                if (menuItem) {
+                    menuItem.classList.add('active');
+                }
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Reports Center - Gokul Cycle & Tyre{% endblock %}
+{% block header_title %}Reports Center{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h4 class="fw-bold mb-1">Generate Stock Reports</h4>
+    <p class="text-secondary small mb-0">Build reports, preview live tables, and export audits as CSV, Excel, or PDF sheets.</p>
+</div>
+
+<!-- Filters Bar -->
+<div class="card-custom mb-4">
+    <div class="card-header-custom bg-white">
+        <h5 class="fw-bold"><i class="bi bi-funnel text-primary me-2"></i>Report Configuration & Filters</h5>
+    </div>
+    <div class="card-body-custom">
+        <form method="GET" action="{{ url_for('reports.index') }}" class="row g-3">
+            <!-- Report Type Select -->
+            <div class="col-md-3">
+                <label for="report_type" class="form-label-custom">Select Report Type</label>
+                <select name="report_type" id="report_type" class="form-select form-control-custom" onchange="toggleFilters()">
+                    <option value="" {% if not report_type %}selected{% endif %}>Select Report Type...</option>
+                    <option value="inventory" {% if report_type == 'inventory' %}selected{% endif %}>Current Inventory Report</option>
+                    <option value="low_stock" {% if report_type == 'low_stock' %}selected{% endif %}>Low Stock Alert Report</option>
+                    <option value="movement" {% if report_type == 'movement' %}selected{% endif %}>Stock Movement Report</option>
+                </select>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="col-md-3">
+                <label for="category" class="form-label-custom">Category</label>
+                <select name="category" id="category" class="form-select form-control-custom">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if category_filter == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Product Filter -->
+            <div class="col-md-3">
+                <label for="product_id" class="form-label-custom">Specific Product</label>
+                <select name="product_id" id="product_id" class="form-select form-control-custom">
+                    <option value="0">All Products</option>
+                    {% for prod in products %}
+                        <option value="{{ prod.id }}" {% if product_id == prod.id %}selected{% endif %}>{{ prod.product_code }} - {{ prod.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+
+            <!-- Date Range Filters (Only shown for Movements) -->
+            <div class="col-md-3 filter-date">
+                <label for="start_date" class="form-label-custom">Start Date</label>
+                <input type="date" name="start_date" id="start_date" class="form-control form-control-custom" value="{{ start_date_str }}">
+            </div>
+
+            <div class="col-md-3 filter-date">
+                <label for="end_date" class="form-label-custom">End Date</label>
+                <input type="date" name="end_date" id="end_date" class="form-control form-control-custom" value="{{ end_date_str }}">
+            </div>
+
+            <!-- Transaction Type (Only shown for Movements) -->
+            <div class="col-md-3 filter-type">
+                <label for="transaction_type" class="form-label-custom">Movement Type</label>
+                <select name="transaction_type" id="transaction_type" class="form-select form-control-custom">
+                    <option value="">All Types</option>
+                    <option value="STOCK_IN" {% if transaction_type == 'STOCK_IN' %}selected{% endif %}>Stock In (Purchase)</option>
+                    <option value="STOCK_OUT" {% if transaction_type == 'STOCK_OUT' %}selected{% endif %}>Stock Out (Discharge)</option>
+                    <option value="TRANSFER" {% if transaction_type == 'TRANSFER' %}selected{% endif %}>Stock Transfer</option>
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="col-12 d-flex gap-2 justify-content-end mt-4 border-top pt-3">
+                <a href="{{ url_for('reports.index') }}" class="btn btn-light rounded-3 px-3">Reset Filters</a>
+                <button type="submit" class="btn btn-indigo rounded-3 px-4">
+                    <i class="bi bi-play-circle-fill me-1"></i>Compile Preview
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Report Display Preview Area -->
+{% if report_type %}
+    <div class="card-custom">
+        <div class="card-header-custom bg-white d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="fw-bold"><i class="bi bi-file-earmark-spreadsheet text-primary me-2"></i>Report Preview (Showing first 50 entries)</h5>
+                <span class="small text-secondary">Total records generated: <strong>{{ total_rows }}</strong></span>
+            </div>
+            
+            <div class="dropdown">
+                <button class="btn btn-indigo btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-download"></i>
+                    <span>Export Sheet</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="exportDropdown">
+                    <li>
+                        <a class="dropdown-item py-2" href="{{ url_for('reports.export', report_type=report_type, format='csv', start_date=start_date_str, end_date=end_date_str, product_id=product_id, category=category_filter, transaction_type=transaction_type) }}">
+                            <i class="bi bi-filetype-csv me-2 text-success"></i>Export to CSV
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-2" href="{{ url_for('reports.export', report_type=report_type, format='excel', start_date=start_date_str, end_date=end_date_str, product_id=product_id, category=category_filter, transaction_type=transaction_type) }}">
+                            <i class="bi bi-file-earmark-excel-fill me-2 text-primary"></i>Export to Excel (XLSX)
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-2" href="{{ url_for('reports.export', report_type=report_type, format='pdf', start_date=start_date_str, end_date=end_date_str, product_id=product_id, category=category_filter, transaction_type=transaction_type) }}">
+                            <i class="bi bi-file-earmark-pdf-fill me-2 text-danger"></i>Export to PDF Document
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="card-body-custom p-0">
+            {% if rows %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                {% for h in headers %}
+                                    <th>{{ h }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in rows %}
+                                <tr>
+                                    {% for item in r %}
+                                        <td>
+                                            {% if h == 'Inventory Value' or h == 'Purchase Price' or item is float %}
+                                                ₹{{ "{:,.2f}".format(item) }}
+                                            {% else %}
+                                                {{ item }}
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-5 text-center text-secondary">
+                    <i class="bi bi-database-exclamation fs-1 d-block mb-2 text-muted"></i>
+                    No data records matched your filtering query.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    <div class="card-custom">
+        <div class="card-body-custom text-center py-5 text-secondary">
+            <i class="bi bi-file-earmark-bar-graph text-muted" style="font-size: 3rem;"></i>
+            <h5 class="fw-bold text-dark mt-3">Select a Report Type Above</h5>
+            <p class="small text-secondary mb-0">Choose between Current Inventory, Low Stock Alerts, or Stock Movements to begin compiling reports.</p>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleFilters() {
+        const reportType = document.getElementById('report_type').value;
+        
+        // Grab elements
+        const dateFilters = document.querySelectorAll('.filter-date');
+        const typeFilter = document.querySelector('.filter-type');
+
+        if (reportType === 'inventory') {
+            dateFilters.forEach(f => f.style.display = 'none');
+            typeFilter.style.display = 'none';
+        } else if (reportType === 'low_stock') {
+            dateFilters.forEach(f => f.style.display = 'none');
+            typeFilter.style.display = 'none';
+        } else if (reportType === 'movement') {
+            dateFilters.forEach(f => f.style.display = 'block');
+            typeFilter.style.display = 'block';
+        } else {
+            dateFilters.forEach(f => f.style.display = 'block');
+            typeFilter.style.display = 'block';
+        }
+    }
+
+    // Run once on load to establish correct filtering display
+    document.addEventListener('DOMContentLoaded', toggleFilters);
+</script>
+{% endblock %}

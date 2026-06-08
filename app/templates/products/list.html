@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Products List - Gokul Cycle & Tyre{% endblock %}
+{% block header_title %}Product Management{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Product Catalog</h4>
+        <p class="text-secondary small mb-0">Add, update, search, and manage products and pricing catalog.</p>
+    </div>
+    {% if current_user.is_admin() %}
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('products.list_categories') }}" class="btn btn-outline-primary d-flex align-items-center gap-2">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+                <span>Manage Categories</span>
+            </a>
+            <a href="{{ url_for('products.add_product') }}" class="btn btn-indigo d-flex align-items-center gap-2">
+                <i class="bi bi-plus-circle-fill"></i>
+                <span>Add New Product</span>
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Search & Filtering Bar -->
+<div class="card-custom mb-4">
+    <div class="card-body-custom py-3">
+        <form method="GET" action="{{ url_for('products.list_products') }}" class="row g-3">
+            <!-- Search Text -->
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-secondary"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control form-control-custom border-start-0" placeholder="Search by name, code, brand..." value="{{ search_query }}">
+                </div>
+            </div>
+            
+            <!-- Category Filter -->
+            <div class="col-md-3">
+                <select name="category" class="form-select form-control-custom">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if category_filter == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Status Filter -->
+            <div class="col-md-3">
+                <select name="status" class="form-select form-control-custom">
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active Products</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Deleted Products (Inactive)</option>
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Records</option>
+                </select>
+            </div>
+            
+            <!-- Submit/Reset buttons -->
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-indigo flex-grow-1">Filter</button>
+                <a href="{{ url_for('products.list_products') }}" class="btn btn-light" title="Clear Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Products Table -->
+<div class="table-custom-wrapper">
+    <table class="table table-custom table-hover align-middle">
+        <thead>
+            <tr>
+                <th style="width: 80px;">Image</th>
+                <th>Product Code</th>
+                <th>Product Name</th>
+                <th>Brand / Size</th>
+                <th>Category</th>
+                <th>Purchase Price</th>
+                <th>Selling Price</th>
+                <th>Total Stock</th>
+                <th class="text-center">Status</th>
+                <th class="text-end" style="width: 180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>
+                        <div class="product-image-container shadow-sm mx-auto">
+                            {% if product.image %}
+                                <img src="{{ url_for('static', filename='uploads/products/' + product.image) }}" alt="{{ product.name }}">
+                            {% else %}
+                                <i class="bi bi-image text-secondary opacity-50" style="font-size: 1.25rem;"></i>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td><span class="font-monospace fw-bold text-secondary">{{ product.product_code }}</span></td>
+                    <td>
+                        <div class="fw-semibold">{{ product.name }}</div>
+                        {% if not product.is_active %}
+                            <span class="badge bg-secondary-subtle text-secondary py-0 px-2 fs-xs rounded-1">Soft Deleted</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="small fw-medium">{{ product.brand or 'N/A' }}</div>
+                        <div class="text-secondary small">{{ product.size or 'N/A' }}</div>
+                    </td>
+                    <td><span class="badge bg-light text-dark border px-2 py-1">{{ product.category }}</span></td>
+                    <td class="font-monospace">₹{{ "{:,.2f}".format(product.purchase_price) }}</td>
+                    <td class="font-monospace fw-semibold">₹{{ "{:,.2f}".format(product.selling_price) }}</td>
+                    <td>
+                        {% set total_stock = product.get_total_stock() %}
+                        {% if total_stock <= product.minimum_stock %}
+                            <span class="badge badge-low-stock rounded-pill px-2 py-1" title="Low stock alert! Minimum limit is {{ product.minimum_stock }}.">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ total_stock }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
+                                {{ total_stock }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if product.is_active %}
+                            <span class="badge bg-success text-white py-1 px-2 small rounded-pill">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary text-white py-1 px-2 small rounded-pill">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-1">
+                            <a href="{{ url_for('products.view_product', id=product.id) }}" class="btn btn-sm btn-outline-primary" title="View details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            
+                            {% if current_user.is_admin() %}
+                                <a href="{{ url_for('products.edit_product', id=product.id) }}" class="btn btn-sm btn-outline-secondary" title="Edit product">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                
+                                {% if product.is_active %}
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteProductModal" onclick="confirmDeleteProduct({{ product.id }}, '{{ product.name }}')" title="Deactivate (Soft Delete)">
+                                        <i class="bi bi-eye-slash"></i> Deactivate
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#restoreProductModal" onclick="confirmRestoreProduct({{ product.id }}, '{{ product.name }}')" title="Restore / Reactivate">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Restore
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#purgeProductModal" onclick="confirmPurgeProduct({{ product.id }}, '{{ product.name }}')" title="Permanently Delete">
+                                        <i class="bi bi-trash-fill"></i> Purge
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="10" class="text-center py-5 text-secondary">
+                        <i class="bi bi-tag fs-2 d-block mb-2 text-muted"></i>
+                        No products found matching your search.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination Controls -->
+{% if pagination.pages > 1 %}
+    <nav class="mt-4 d-flex justify-content-center">
+        <ul class="pagination pagination-custom">
+            <!-- Previous Button -->
+            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('products.list_products', page=pagination.prev_num, search=search_query, category=category_filter, status=status_filter) }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            
+            <!-- Page Numbers -->
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('products.list_products', page=page_num, search=search_query, category=category_filter, status=status_filter) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Next Button -->
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('products.list_products', page=pagination.next_num, search=search_query, category=category_filter, status=status_filter) }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endif %}
+
+<!-- Soft Delete Product Reusable Modal -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 bg-danger text-white">
+                <h5 class="modal-title fw-bold" id="deleteProductModalLabel"><i class="bi bi-exclamation-triangle me-2"></i>Soft Delete Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start p-4">
+                <p>Are you sure you want to deactivate and soft-delete the product: <strong id="deleteProductNameSpan"></strong>?</p>
+                <p class="text-secondary small mb-0"><i class="bi bi-info-circle me-1"></i>Soft-deleted products remain in the database but are deactivated from the catalog views by default. Existing stock levels are preserved.</p>
+            </div>
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-secondary btn-sm rounded-3" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteProductForm" action="" method="POST" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm rounded-3 px-3">Confirm Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Restore Product Modal -->
+<div class="modal fade" id="restoreProductModal" tabindex="-1" aria-labelledby="restoreProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 bg-success text-white">
+                <h5 class="modal-title fw-bold" id="restoreProductModalLabel"><i class="bi bi-arrow-counterclockwise me-2"></i>Restore Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start p-4">
+                <p>Are you sure you want to restore and reactivate the product: <strong id="restoreProductNameSpan"></strong>?</p>
+                <p class="text-secondary small mb-0"><i class="bi bi-info-circle me-1"></i>Reactivated products will immediately return to catalog listings and stock movement dropdown forms.</p>
+            </div>
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-secondary btn-sm rounded-3" data-bs-dismiss="modal">Cancel</button>
+                <form id="restoreProductForm" action="" method="POST" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-success btn-sm rounded-3 px-3">Confirm Restore</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Purge (Hard Delete) Product Modal -->
+<div class="modal fade" id="purgeProductModal" tabindex="-1" aria-labelledby="purgeProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 bg-danger text-white">
+                <h5 class="modal-title fw-bold" id="purgeProductModalLabel"><i class="bi bi-trash-fill me-2"></i>Permanently Delete Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start p-4">
+                <p>Are you sure you want to <strong>permanently delete</strong> the product: <strong id="purgeProductNameSpan"></strong>?</p>
+                <p class="text-danger small mb-0"><i class="bi bi-exclamation-triangle-fill me-1"></i><strong>WARNING:</strong> This action is permanent and cannot be undone! This will delete the product, clear all associated warehouse/shop stock level entries, and remove all related transaction logs from the audit history.</p>
+            </div>
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-secondary btn-sm rounded-3" data-bs-dismiss="modal">Cancel</button>
+                <form id="purgeProductForm" action="" method="POST" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm rounded-3 px-3">Permanently Purge</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDeleteProduct(productId, productName) {
+        document.getElementById('deleteProductNameSpan').innerText = productName;
+        document.getElementById('deleteProductForm').action = "{{ url_for('products.list_products') }}/delete/" + productId;
+    }
+    function confirmRestoreProduct(productId, productName) {
+        document.getElementById('restoreProductNameSpan').innerText = productName;
+        document.getElementById('restoreProductForm').action = "{{ url_for('products.list_products') }}/restore/" + productId;
+    }
+    function confirmPurgeProduct(productId, productName) {
+        document.getElementById('purgeProductNameSpan').innerText = productName;
+        document.getElementById('purgeProductForm').action = "{{ url_for('products.list_products') }}/purge/" + productId;
+    }
+</script>
+{% endblock %}

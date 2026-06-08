@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Stock Out (Sale / Adjustment) - Gokul Cycle & Tyre{% endblock %}
+{% block header_title %}Stock Movements{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('inventory.list_inventory') }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Stock Levels</span>
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card-custom">
+            <div class="card-header-custom bg-white">
+                <h5 class="fw-bold"><i class="bi bi-box-arrow-up text-danger me-2"></i>Stock Out Module (Discharge Goods)</h5>
+            </div>
+            <div class="card-body-custom">
+                <form method="POST" action="" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="product_id" class="form-label-custom">Select Product</label>
+                        {{ form.product_id(class="form-select form-control-custom" + (" is-invalid" if form.product_id.errors else "")) }}
+                        {% for error in form.product_id.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label-custom">Deduct Quantity</label>
+                        {{ form.quantity(class="form-control form-control-custom" + (" is-invalid" if form.quantity.errors else ""), type="number", min="1", placeholder="Minimum 1 unit") }}
+                        {% for error in form.quantity.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reason" class="form-label-custom">Reason for Stock Out</label>
+                        {{ form.reason(class="form-select form-control-custom" + (" is-invalid" if form.reason.errors else "")) }}
+                        {% for error in form.reason.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="mb-4">
+                        <label for="notes" class="form-label-custom">Notes / Details</label>
+                        {{ form.notes(class="form-control form-control-custom", rows="3", placeholder="Add invoice lookup references, customer details, or damage reasons...") }}
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                        <a href="{{ url_for('inventory.list_inventory') }}" class="btn btn-light rounded-3 px-3">Cancel</a>
+                        <button type="submit" class="btn btn-indigo rounded-3 px-4">
+                            <i class="bi bi-dash-circle-fill me-1"></i>Process Stock Out
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('product_id');
+        
+        if (productId) {
+            const prodDropdown = document.getElementById('product_id');
+            if (prodDropdown) prodDropdown.value = productId;
+        }
+    });
+</script>
+{% endblock %}

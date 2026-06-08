@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Gokul Cycle & Tyre{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('auth.list_users') }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to User List</span>
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card-custom">
+            <div class="card-header-custom bg-white">
+                <h5 class="fw-bold"><i class="bi bi-person-fill-gear text-primary me-2"></i>{{ title }}</h5>
+            </div>
+            <div class="card-body-custom">
+                <form method="POST" action="" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label-custom">Username</label>
+                        {{ form.username(class="form-control form-control-custom" + (" is-invalid" if form.username.errors else ""), placeholder="e.g. john_doe") }}
+                        {% for error in form.username.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="role" class="form-label-custom">User Role</label>
+                        {{ form.role(class="form-select form-control-custom" + (" is-invalid" if form.role.errors else "")) }}
+                        {% for error in form.role.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text small text-secondary">
+                            <strong>Admin</strong> has full system permissions. <strong>Staff</strong> is restricted from deleting items, managing accounts, or accessing configurations.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label-custom">Password</label>
+                        {{ form.password(class="form-control form-control-custom" + (" is-invalid" if form.password.errors else ""), placeholder="Minimum 6 characters") }}
+                        {% for error in form.password.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        {% if user %}
+                            <div class="form-text small text-secondary">
+                                <i class="bi bi-info-circle me-1"></i>Leave password blank to keep current password.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                        <a href="{{ url_for('auth.list_users') }}" class="btn btn-light rounded-3 px-3">Cancel</a>
+                        <button type="submit" class="btn btn-indigo rounded-3 px-4">
+                            <i class="bi bi-check2-circle me-1"></i>Save Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
