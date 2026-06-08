@@ -21,6 +21,37 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     csrf.init_app(app)
 
+    # Automatically create database tables and seed default users on first start
+    with app.app_context():
+        try:
+            db.create_all()
+            admin_user = User.query.filter_by(username="admin").first()
+            if not admin_user:
+                admin = User(username="admin", role="ADMIN")
+                admin.set_password("admin123")
+                db.session.add(admin)
+                
+                staff_user = User.query.filter_by(username="staff").first()
+                if not staff_user:
+                    staff = User(username="staff", role="STAFF")
+                    staff.set_password("staff123")
+                    db.session.add(staff)
+                
+                from app.models.location import Location
+                godown = Location.query.filter_by(name="Main Godown").first()
+                if not godown:
+                    db.session.add(Location(name="Main Godown"))
+                
+                from app.models.category import Category
+                default_categories = ['Cycle', 'Tyre', 'Tube', 'Rim', 'Spare Part', 'Accessory']
+                for cat_name in default_categories:
+                    if not Category.query.filter_by(name=cat_name).first():
+                        db.session.add(Category(name=cat_name))
+                        
+                db.session.commit()
+        except Exception as e:
+            app.logger.warning(f"Database auto-initialization skipped or failed: {e}")
+
     # Configure Login Manager
     login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'info'
