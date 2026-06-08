@@ -29,14 +29,14 @@ class UserForm(FlaskForm):
 
 
 class ProductForm(FlaskForm):
-    product_code = StringField('Product Code', validators=[DataRequired(), Length(max=50)])
-    name = StringField('Product Name', validators=[DataRequired(), Length(max=100)])
-    brand = StringField('Brand', validators=[Length(max=50)])
-    category = SelectField('Category', validators=[DataRequired()])
-    size = StringField('Size', validators=[Length(max=50)])
-    purchase_price = DecimalField('Purchase Price', validators=[DataRequired(), NumberRange(min=0.0)])
-    selling_price = DecimalField('Selling Price', validators=[DataRequired(), NumberRange(min=0.0)])
-    minimum_stock = IntegerField('Minimum Stock Alert Level', validators=[DataRequired(), NumberRange(min=0)])
+    product_code = StringField('Product Code', validators=[Optional(), Length(max=50)])
+    name = StringField('Product Name', validators=[Optional(), Length(max=100)])
+    brand = StringField('Brand', validators=[Optional(), Length(max=50)])
+    category = SelectField('Category', validators=[Optional()])
+    size = StringField('Size', validators=[Optional(), Length(max=50)])
+    purchase_price = DecimalField('Purchase Price', validators=[Optional(), NumberRange(min=0.0)])
+    selling_price = DecimalField('Selling Price', validators=[Optional(), NumberRange(min=0.0)])
+    minimum_stock = IntegerField('Minimum Stock Alert Level', validators=[Optional(), NumberRange(min=0)])
     description = TextAreaField('Description')
     image = FileField('Product Image', validators=[
         FileAllowed(['jpg', 'png', 'jpeg', 'webp', 'gif'], 'Only images allowed!')

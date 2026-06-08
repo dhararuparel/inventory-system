@@ -96,15 +96,31 @@ def add_product():
                 flash('Invalid file extension. Please upload an image (png, jpg, jpeg, webp, gif).', 'danger')
                 return render_template('products/product_form.html', form=form, title='Add Product')
 
+        # Fallback values for optional fields
+        code = form.product_code.data
+        if not code or not code.strip():
+            import uuid
+            code = f"AUTO-{uuid.uuid4().hex[:8].upper()}"
+        else:
+            code = code.upper()
+
+        name = form.name.data
+        if not name or not name.strip():
+            name = "Unnamed Product"
+
+        purchase_price = form.purchase_price.data if form.purchase_price.data is not None else 0.00
+        selling_price = form.selling_price.data if form.selling_price.data is not None else 0.00
+        minimum_stock = form.minimum_stock.data if form.minimum_stock.data is not None else 0
+
         product = Product(
-            product_code=form.product_code.data.upper(),
-            name=form.name.data,
+            product_code=code,
+            name=name,
             brand=form.brand.data,
-            category=form.category.data,
+            category=form.category.data or "Cycle",
             size=form.size.data,
-            purchase_price=form.purchase_price.data,
-            selling_price=form.selling_price.data,
-            minimum_stock=form.minimum_stock.data,
+            purchase_price=purchase_price,
+            selling_price=selling_price,
+            minimum_stock=minimum_stock,
             description=form.description.data,
             image=filename,
             is_active=form.is_active.data
@@ -140,14 +156,26 @@ def edit_product(id):
                 flash('Invalid file extension. Please upload an image.', 'danger')
                 return render_template('products/product_form.html', form=form, title='Edit Product', product=product)
 
-        product.product_code = form.product_code.data.upper()
-        product.name = form.name.data
+        # Fallback values for optional fields
+        code = form.product_code.data
+        if not code or not code.strip():
+            import uuid
+            code = f"AUTO-{uuid.uuid4().hex[:8].upper()}"
+        else:
+            code = code.upper()
+
+        name = form.name.data
+        if not name or not name.strip():
+            name = "Unnamed Product"
+
+        product.product_code = code
+        product.name = name
         product.brand = form.brand.data
-        product.category = form.category.data
+        product.category = form.category.data or "Cycle"
         product.size = form.size.data
-        product.purchase_price = form.purchase_price.data
-        product.selling_price = form.selling_price.data
-        product.minimum_stock = form.minimum_stock.data
+        product.purchase_price = form.purchase_price.data if form.purchase_price.data is not None else 0.00
+        product.selling_price = form.selling_price.data if form.selling_price.data is not None else 0.00
+        product.minimum_stock = form.minimum_stock.data if form.minimum_stock.data is not None else 0
         product.description = form.description.data
         product.is_active = form.is_active.data
 
