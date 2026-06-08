@@ -58,3 +58,5 @@ Desktop.ini
 node_modules/
 dist-exe/
 dist-installer/
+app/static/downloads/*.exe
+app/static/downloads/*.apk
