@@ -251,14 +251,29 @@ def list_categories():
 @admin_required
 def delete_category(id):
     category = Category.query.get_or_404(id)
-    # Check if there are any products using this category
-    product_count = Product.query.filter_by(category=category.name).count()
-    if product_count > 0:
-        flash(f'Cannot delete category "{category.name}" because it is currently assigned to {product_count} product(s).', 'danger')
-        return redirect(url_for('products.list_categories'))
-
+    
+    # Find a fallback category (any category other than the one being deleted)
+    fallback = Category.query.filter(Category.id != category.id).first()
+    if not fallback:
+        # Create default 'Accessory' category if it's the last one being deleted
+        fallback = Category(name='Accessory')
+        db.session.add(fallback)
+        db.session.flush()
+        
+    fallback_name = fallback.name
+    
+    # Reassign all products (both active and soft-deleted) that use this category
+    products_to_reassign = Product.query.filter_by(category=category.name).all()
+    for product in products_to_reassign:
+        product.category = fallback_name
+        
     name = category.name
     db.session.delete(category)
     db.session.commit()
-    flash(f'Category "{name}" deleted successfully.', 'success')
+    
+    if products_to_reassign:
+        flash(f'Category "{name}" deleted successfully. {len(products_to_reassign)} product(s) reassigned to "{fallback_name}".', 'success')
+    else:
+        flash(f'Category "{name}" deleted successfully.', 'success')
+        
     return redirect(url_for('products.list_categories'))
