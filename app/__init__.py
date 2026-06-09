@@ -71,6 +71,7 @@ def create_app(config_class=Config):
     from app.inventory import inventory_bp
     from app.transactions import transactions_bp
     from app.reports import reports_bp
+    from app.excel import excel_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
@@ -78,6 +79,7 @@ def create_app(config_class=Config):
     app.register_blueprint(inventory_bp)
     app.register_blueprint(transactions_bp, url_prefix='/')  # Registered at root to serve /stock-in, /stock-out, /transfers, /transactions
     app.register_blueprint(reports_bp)
+    app.register_blueprint(excel_bp, url_prefix='/excel')
 
     # Setup Flask-Admin
     from app.admin.views import (

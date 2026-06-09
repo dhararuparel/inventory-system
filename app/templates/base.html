@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -75,6 +76,25 @@
                         <i class="bi bi-cloud-arrow-down-fill text-info"></i>Download App Wrapper
                     </a>
                 </li>
+                
+                <p>Excel Operations</p>
+                <li id="menu-excel-export">
+                    <a href="{{ url_for('excel.export_center') }}">
+                        <i class="bi bi-file-earmark-spreadsheet text-primary"></i>Excel Export Center
+                    </a>
+                </li>
+                {% if current_user.is_authenticated and current_user.is_admin() %}
+                <li id="menu-excel-import-products">
+                    <a href="{{ url_for('excel.import_products_page') }}">
+                        <i class="bi bi-cloud-arrow-up text-indigo"></i>Bulk Import Products
+                    </a>
+                </li>
+                <li id="menu-excel-update-inventory">
+                    <a href="{{ url_for('excel.update_inventory_page') }}">
+                        <i class="bi bi-arrow-repeat text-success"></i>Bulk Stock Update
+                    </a>
+                </li>
+                {% endif %}
                 
                 {% if current_user.is_authenticated and current_user.is_admin() %}
                     <li id="menu-categories">
@@ -219,6 +239,12 @@
                 activeId = 'menu-downloads';
             } else if (currentPath.startsWith('/users')) {
                 activeId = 'menu-users';
+            } else if (currentPath.startsWith('/excel/export-center')) {
+                activeId = 'menu-excel-export';
+            } else if (currentPath.startsWith('/excel/import-products')) {
+                activeId = 'menu-excel-import-products';
+            } else if (currentPath.startsWith('/excel/update-inventory')) {
+                activeId = 'menu-excel-update-inventory';
             }
 
             if (activeId) {

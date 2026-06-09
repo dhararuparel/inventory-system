@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Export Center - Gokul Cycle & Tyre{% endblock %}
+{% block header_title %}Excel Export Center{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h4 class="fw-bold mb-1">Export Data to Excel</h4>
+    <p class="text-secondary small mb-0">Generate and download standard spreadsheets (.xlsx) containing current system records.</p>
+</div>
+
+<div class="row g-4">
+    <!-- Products Catalog Card -->
+    <div class="col-md-4">
+        <div class="card-custom h-100 d-flex flex-column">
+            <div class="card-body-custom flex-grow-1">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
+                        <i class="bi bi-tag-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">Products Directory</h5>
+                </div>
+                <p class="text-secondary small mb-4">Export all active products in the system. Useful for catalog synchronization or stock checks.</p>
+                <div class="bg-light p-3 rounded-3 mb-4">
+                    <span class="d-block text-secondary fw-semibold small mb-2"><i class="bi bi-list-columns-reverse me-1"></i>Columns Included:</span>
+                    <div class="d-flex flex-wrap gap-1">
+                        <span class="badge bg-white text-secondary border small">Product Code</span>
+                        <span class="badge bg-white text-secondary border small">Product Name</span>
+                        <span class="badge bg-white text-secondary border small">Brand</span>
+                        <span class="badge bg-white text-secondary border small">Category</span>
+                        <span class="badge bg-white text-secondary border small">Size</span>
+                        <span class="badge bg-white text-secondary border small">Purchase Price</span>
+                        <span class="badge bg-white text-secondary border small">Selling Price</span>
+                        <span class="badge bg-white text-secondary border small">Min Stock</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0 p-4 pt-0">
+                <a href="{{ url_for('excel.export_products') }}" class="btn btn-indigo w-100 d-flex align-items-center justify-content-center gap-2 py-2 fs-6">
+                    <i class="bi bi-file-earmark-excel"></i>
+                    <span>Download Products</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Stock Levels Card -->
+    <div class="col-md-4">
+        <div class="card-custom h-100 d-flex flex-column">
+            <div class="card-body-custom flex-grow-1">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
+                        <i class="bi bi-boxes"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">Current Stock Levels</h5>
+                </div>
+                <p class="text-secondary small mb-4">Export current stock quantities grouped by products and their respective warehouse storage locations.</p>
+                <div class="bg-light p-3 rounded-3 mb-4">
+                    <span class="d-block text-secondary fw-semibold small mb-2"><i class="bi bi-list-columns-reverse me-1"></i>Columns Included:</span>
+                    <div class="d-flex flex-wrap gap-1">
+                        <span class="badge bg-white text-secondary border small">Product Code</span>
+                        <span class="badge bg-white text-secondary border small">Product Name</span>
+                        <span class="badge bg-white text-secondary border small">Current Quantity</span>
+                        <span class="badge bg-white text-secondary border small">Location</span>
+                        <span class="badge bg-white text-secondary border small">Last Updated</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0 p-4 pt-0">
+                <a href="{{ url_for('excel.export_inventory') }}" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2 py-2 fs-6 text-white" style="background-color: var(--success-color); border: none;">
+                    <i class="bi bi-file-earmark-excel"></i>
+                    <span>Download Stock Levels</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock Alert Report Card -->
+    <div class="col-md-4">
+        <div class="card-custom h-100 d-flex flex-column">
+            <div class="card-body-custom flex-grow-1">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon bg-danger bg-opacity-10 text-danger me-3">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">Low Stock Alerts</h5>
+                </div>
+                <p class="text-secondary small mb-4">Export list of products whose total current stock falls below their designated minimum stock level threshold.</p>
+                <div class="bg-light p-3 rounded-3 mb-4">
+                    <span class="d-block text-secondary fw-semibold small mb-2"><i class="bi bi-list-columns-reverse me-1"></i>Columns Included:</span>
+                    <div class="d-flex flex-wrap gap-1">
+                        <span class="badge bg-white text-secondary border small">Product Code</span>
+                        <span class="badge bg-white text-secondary border small">Product Name</span>
+                        <span class="badge bg-white text-secondary border small">Current Stock</span>
+                        <span class="badge bg-white text-secondary border small">Minimum Stock</span>
+                        <span class="badge bg-white text-secondary border small">Shortage Quantity</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0 p-4 pt-0">
+                <a href="{{ url_for('excel.export_low_stock') }}" class="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2 fs-6 text-white" style="background-color: var(--danger-color); border: none;">
+                    <i class="bi bi-file-earmark-excel"></i>
+                    <span>Download Alert Report</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
