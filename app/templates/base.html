@@ -71,11 +71,6 @@
                         <i class="bi bi-file-earmark-bar-graph"></i>Reports Center
                     </a>
                 </li>
-                <li id="menu-downloads">
-                    <a href="{{ url_for('dashboard.downloads') }}">
-                        <i class="bi bi-cloud-arrow-down-fill text-info"></i>Download App Wrapper
-                    </a>
-                </li>
                 
                 <p>Excel Operations</p>
                 <li id="menu-excel-export">
@@ -235,8 +230,6 @@
                 activeId = 'menu-transactions';
             } else if (currentPath.startsWith('/reports')) {
                 activeId = 'menu-reports';
-            } else if (currentPath.startsWith('/downloads')) {
-                activeId = 'menu-downloads';
             } else if (currentPath.startsWith('/users')) {
                 activeId = 'menu-users';
             } else if (currentPath.startsWith('/excel/export-center')) {
